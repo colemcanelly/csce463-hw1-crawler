@@ -21,10 +21,13 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Url.cpp">
+    <ClCompile Include="Request.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Socket.cpp">
+    <ClCompile Include="Tcp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Crawler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +35,10 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Url.h">
+    <ClInclude Include="Request.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Socket.h">
+    <ClInclude Include="Tcp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WinSock.h">
@@ -44,7 +47,16 @@
     <ClInclude Include="HTMLParserBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HtmlResponse.h">
+    <ClInclude Include="Response.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Crawler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Forwards.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MMapFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
