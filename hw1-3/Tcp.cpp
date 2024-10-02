@@ -8,13 +8,18 @@
 #include "Tcp.h"
 
 #include "Request.h"
+#include "Forwards.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
 // //////////////////////////////////////////////////
 // Public Methods
 
-Tcp::Tcp() : sock(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)), max_download(PAGE_DOWNLOAD_LIMIT)
+Tcp::Tcp(Crawler* _c, Download _d)
+	: sock(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))
+	, max_download(PAGE_DOWNLOAD_LIMIT)
+	, c(_c)
+	, d(_d)
 {
 	if (sock == INVALID_SOCKET) throw fatal_winsock_error("couldn't create socket!");
 }
@@ -37,15 +42,15 @@ void Tcp::connect(const uint32_t host_ip, const uint16_t port, bool robots) cons
 	server.sin_addr.s_addr = host_ip;
 	server.sin_port = htons(port);
 
-	if (robots) printf("\tConnecting on robots... ");
-	else printf("\t\b\b* Connecting on page... ");
+	if (robots) std::cout << "\tConnecting on robots... ";
+	else std::cout << "\t\b\b* Connecting on page... ";
 
-	auto start = TIME_CURRENT;
+	auto start = Time::now();
 
 	int err = ::connect(this->sock, (struct sockaddr*)&server, sizeof(struct sockaddr_in));
 	if (err == SOCKET_ERROR) throw winsock_error("(Connection failure)");
 
-	std::cout << "done in " << TIME_ELAPSED(start) << "\n";
+	std::cout << "done in " << time_elapsed<milliseconds>(start) << "\n";
 }
 
 void Tcp::send(const std::string& req) const {
@@ -53,10 +58,9 @@ void Tcp::send(const std::string& req) const {
 	if (err == SOCKET_ERROR) throw winsock_error();
 }
 
-std::shared_ptr<Http::Response> Tcp::response(bool check_limits) const {
-	printf("\tLoading... ");
-	auto start = TIME_CURRENT;
-	auto tmp = TIME_ELAPSED(start);
+std::shared_ptr<Http::Response> Tcp::response() const {
+	std::cout << "\tLoading... ";
+	auto start = Time::now();
 
 	//WSAEVENT event_listener = WSACreateEvent();
 	WSAEVENT event = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -70,8 +74,8 @@ std::shared_ptr<Http::Response> Tcp::response(bool check_limits) const {
 	// Read into buffer (auto resizing as necessary
 	std::vector<char> buffer;
 	buffer.reserve(THRESHOLD);
-	auto time_started = TIME_CURRENT;
-	while (this->receive(buffer, event, time_started, check_limits));
+	auto time_started = Time::now();
+	while (this->receive(buffer, event, time_started));
 	if (buffer.empty()) throw socket_error("no response");
 	buffer.push_back('\0');     // Null-terminate the buffer
 
@@ -79,7 +83,7 @@ std::shared_ptr<Http::Response> Tcp::response(bool check_limits) const {
 
 	if (strncmp(buffer.data(), "HTTP/", 5)) throw socket_error("non-HTTP header (does not begin with HTTP/)");
 
-	std::cout << "done in " << TIME_ELAPSED(start) << " with " << buffer.size() << " bytes\n";
+	std::cout << "done in " << time_elapsed<milliseconds>(start) << " with " << buffer.size() - 1 << " bytes\n";
 	return std::make_shared<Http::Response>(buffer);
 }
 
@@ -87,9 +91,9 @@ std::shared_ptr<Http::Response> Tcp::response(bool check_limits) const {
 // //////////////////////////////////////////////////
 // Private Methods
 
-bool Tcp::receive(std::vector<char>& buf, WSAEVENT event, time_point start, bool check_limits) const {
-	if (check_limits && TIME_ELAPSED(start).count() >= TIMEOUT) throw socket_error("slow download");
-	uint32_t waitResult = WaitForSingleObject(event, TIMEOUT);
+bool Tcp::receive(std::vector<char>& buf, WSAEVENT event, Time::time_point start) const {
+	if ((d == Download::BOUNDED) && time_elapsed<milliseconds>(start) >= TIMEOUT) throw socket_error("slow download");
+	uint32_t waitResult = WaitForSingleObject(event, TIMEOUT.count());
 
 	if (waitResult == WSA_WAIT_TIMEOUT) throw socket_error("timeout");
 	if (waitResult == WSA_WAIT_FAILED) throw fatal_winsock_error("WSAWaitForMultipleEvents() failed");
@@ -114,7 +118,8 @@ bool Tcp::receive(std::vector<char>& buf, WSAEVENT event, time_point start, bool
 		if (num_bytes == 0) return false;					// Connection closed by server
 
 		buf.resize(position + num_bytes);
-		if (check_limits && buf.size() > max_download) throw socket_error("exceeding max");
+		if (c) c->stats.n_bytes_downloaded += num_bytes;
+		if ((d == Download::BOUNDED) && buf.size() > max_download) throw socket_error("exceeding max");
 	}
 
 	// Connection closed

@@ -11,16 +11,19 @@
 
 #include "Crawler.h"
 
+
 int main(int argc, char* argv[])
 try {
-	Crawler c;
-	
-	switch (argc) {
+	switch (argc)
+	{
 	case 1: throw argument_error("no arguments given");
 
-	case 2: return c.fetch(argv[1]);
-	case 3: return c.run(argv[1], argv[2]);
-
+	case 2: return Crawler::fetch(argv[1]);
+	case 3:
+		return Crawler(argv[1], argv[2])
+			.lauch()
+			.await()
+			.summary();
 	case 4:
 	default: throw argument_error("too many arguments");
 	}
@@ -28,6 +31,6 @@ try {
 	return 0;
 }
 catch (const std::exception& e) {
-	std::cout << e.what() << std::endl;
+	std::cerr << e.what() << std::endl;
 	return -1;
 }

@@ -30,6 +30,12 @@
     <ClCompile Include="Crawler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Response.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MMapFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -57,6 +63,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MMapFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mutex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Iter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Url.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -24,7 +24,7 @@
     <ProjectGuid>{e74ed7bd-40fc-4594-8fbb-5ce597198078}</ProjectGuid>
     <RootNamespace>hw1_2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>hw1-2</ProjectName>
+    <ProjectName>hw1-3</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,12 +143,14 @@
   <ItemGroup>
     <ClCompile Include="Crawler.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MMapFile.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Response.cpp" />
     <ClCompile Include="Tcp.cpp" />
     <ClCompile Include="Request.cpp" />
   </ItemGroup>
@@ -156,11 +158,14 @@
     <ClInclude Include="Crawler.h" />
     <ClInclude Include="Forwards.h" />
     <ClInclude Include="HTMLParserBase.h" />
+    <ClInclude Include="Iter.h" />
     <ClInclude Include="MMapFile.h" />
+    <ClInclude Include="Mutex.h" />
     <ClInclude Include="Response.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Tcp.h" />
     <ClInclude Include="Request.h" />
+    <ClInclude Include="Url.h" />
     <ClInclude Include="WinSock.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

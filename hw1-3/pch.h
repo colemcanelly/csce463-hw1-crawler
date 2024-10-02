@@ -13,6 +13,12 @@
 #ifndef PCH_H
 #define PCH_H
 
+// Uncomment this to test HTTP1.1 chunking functionality
+//#define HTTP1_1
+
+// Uncomment this to count the In-Degree of TAMU.edu
+//#define GET_IN_TAMU
+
 // add headers that you want to pre-compile here
 #include <cstdint>
 #include <string>
@@ -23,6 +29,8 @@
 #include <exception>
 #include <chrono>
 #include <set>
+#include <mutex>
+#include <functional>
 
 #include "HTMLParserBase.h"
 
@@ -30,27 +38,46 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
 
+// Timing operations
+using Time = std::chrono::high_resolution_clock;
+using seconds = std::chrono::seconds;
+using milliseconds = std::chrono::milliseconds;
 
-#define TIME_CURRENT std::chrono::high_resolution_clock::now()
-#define TIME_ELAPSED(begin) std::chrono::duration_cast<std::chrono::milliseconds>(TIME_CURRENT - begin)
+template <typename T>
+constexpr T time_elapsed(Time::time_point begin) { return std::chrono::duration_cast<T>(Time::now() - begin); }
+
+// Unit conversion
+
+// Bytes per bit
+using bytes = std::ratio<8, 1>;
+
+template <typename ToRatio, typename FromRatio = std::ratio<1>, typename T>
+constexpr T unit_cast(T value) {
+	using conversion_ratio = std::ratio_divide<FromRatio, ToRatio>;
+	return value * static_cast<T>(conversion_ratio::num) / static_cast<T>(conversion_ratio::den);
+}
+
+
+// Operator literals
+using std::chrono::operator""s;
+using std::chrono::operator""ms;
 
 constexpr size_t operator""KB(const size_t x) { return x * 1000; }
 constexpr size_t operator""MB(const size_t x) { return x * 1000KB; }
 
-constexpr size_t operator""KiB(const size_t x) { return x * 1024; }
-constexpr size_t operator""MiB(const size_t x) { return x * 1024KiB; }
+constexpr size_t operator""KiB(const size_t x) { return x << 10; }
+constexpr size_t operator""MiB(const size_t x) { return x << 20; }
 
 namespace UInt {
 	template <typename T>
-	inline std::optional<T> parse(const std::string& s) {
-		try {
-			uint64_t port = std::stoull(s);
-			if (port > std::numeric_limits<T>::max() || port == 0) return {};
-			return static_cast<T>(port);
-		}
-		catch (...) {
-			return {};
-		}
+	inline std::optional<T> parse(const std::string& s, int base = 10)
+	try {
+		uint64_t ret = std::strtoull(s.data(), nullptr, base);
+		if (ret > std::numeric_limits<T>::max()) return {};
+		return static_cast<T>(ret);
+	}
+	catch (...) {
+		return {};
 	}
 }
 
@@ -62,4 +89,3 @@ namespace UInt {
 	"\t-> port must be a valid 16-bit unsigned integer"
 
 #endif //PCH_H
-	

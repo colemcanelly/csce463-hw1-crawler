@@ -47,8 +47,8 @@ public:
 
 	static inline uint32_t dns(const std::string& hostname) {
 		// Got info from reading inaddr.h
-		printf("\tDoing DNS... ");
-		auto start = TIME_CURRENT;
+		std::cout << "\tDoing DNS... ";
+		auto start = Time::now();
 		in_addr ip;
 		ip.s_addr = inet_addr(hostname.c_str());
 		if (ip.s_addr == INADDR_NONE) {
@@ -56,7 +56,7 @@ public:
 			if (host == NULL) throw winsock_error("(DNS failure)");;
 			ip.s_addr = *reinterpret_cast<uint32_t*>(host->h_addr);
 		}
-		std::cout << "done in " << TIME_ELAPSED(start) << ", found " << inet_ntoa(ip) << "\n";
+		std::cout << "done in " << time_elapsed<milliseconds>(start) << ", found " << inet_ntoa(ip) << "\n";
 		return ip.s_addr;
 	}
 };
